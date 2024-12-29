@@ -1,6 +1,7 @@
 use sdl2::event::{Event};
 use sdl2::video::{Window as SdlWindow};
 use sdl2::{Sdl};
+use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 
 pub struct Window {
     sdl_context: Sdl,
@@ -8,6 +9,8 @@ pub struct Window {
     event_pump: sdl2::EventPump,
     quit_requested: bool,
     max_fps: Option<u32>,
+    pub width: u32,
+    pub height: u32,
 }
 
 pub enum FullscreenMode {
@@ -119,6 +122,8 @@ impl WindowBuilder {
             event_pump,
             quit_requested: false,
             max_fps: self.max_fps,
+            self.width,
+            self.height,
         })
     }
 }
@@ -145,6 +150,10 @@ impl Window {
         self.sdl_window
             .vulkan_instance_extensions()
             .expect("Failed to get Vulkan instance extensions")
-
     }
+
+    //pub fn get_handle(&mut self) -> RawWindowHandle {
+    //    self.sdl_window.raw_window_handle()
+    //}
+    //
 }
