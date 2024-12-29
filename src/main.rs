@@ -43,7 +43,7 @@ impl<'app> App<'app> {
         let video = sdl.video()?;
         let mut window = video
             .window("Mandelique", 800, 600)
-        //    .position_centered()
+            .position_centered()
             .resizable()
         //    .borderless()
             .metal_view()
@@ -167,7 +167,7 @@ impl<'app> App<'app> {
             format: surface_format,
             width,
             height,
-            present_mode: wgpu::PresentMode::Immediate,
+            present_mode: wgpu::PresentMode::Fifo,
             alpha_mode: wgpu::CompositeAlphaMode::Auto,
             view_formats: Vec::default(),
             desired_maximum_frame_latency: 2,
