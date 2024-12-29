@@ -1,0 +1,16 @@
+[package]
+name = "mandelique"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1"
+log = "0.4"
+cgmath = "0.18"
+png = "0.17"
+pretty_env_logger = "0.5"
+thiserror = "1"
+tobj = { version = "3", features = ["log"] }
+sdl2 = "0.37.0"
+wgpu = "23.0.1"
+pollster = "0.4.0"
