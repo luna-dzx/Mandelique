@@ -8,10 +8,8 @@ mod window;
 use window::{Window, WindowBuilder};
 
 struct App<'app> {
-    pub quitting: bool,
-
-    render: Render<'app>,
-    window: Window,
+    pub render: Render<'app>,
+    pub window: Window,
 }
 
 
@@ -26,8 +24,6 @@ impl<'app> App<'app> {
         env_logger::init();
 
 
-        let quitting = false;
-
         let window = WindowBuilder::new()
             .build()
             .unwrap();
@@ -36,8 +32,6 @@ impl<'app> App<'app> {
 
 
         Ok(Self {
-            quitting,
-
             render,
             window,
         })
@@ -81,7 +75,7 @@ impl<'app> App<'app> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => {
-                    self.quitting = true;
+                    self.window.quit();
                     return;
                 }
 
@@ -100,7 +94,7 @@ fn main(){
 
     let mut app = App::new().unwrap();
 
-    while !app.quitting {
+    while app.window.is_open() {
         app.process();
     }
 

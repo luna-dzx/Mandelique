@@ -84,12 +84,6 @@ impl WindowBuilder {
         let sdl_context = sdl2::init()?;
         let video_subsystem = sdl_context.video()?;
 
-        //let sdl_window = video_subsystem
-        //    .window("first window", 640, 480)
-        //    .position_centered()
-        //    .build()
-        //    .map_err()?;
-
         let mut window_builder = video_subsystem.window(&self.title, self.width, self.height);
         let mut window_builder = window_builder.vulkan();
         window_builder = window_builder.resizable();
@@ -163,9 +157,4 @@ impl Window {
     pub fn get_id(&mut self) -> u32 {
         self.sdl_window.id()
     }
-
-    //pub fn get_handle(&mut self) -> RawWindowHandle {
-    //    self.sdl_window.raw_window_handle()
-    //}
-    //
 }
