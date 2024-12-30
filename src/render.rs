@@ -2,21 +2,23 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use wgpu::SurfaceError;
 
+use sdl2::video::{Window as SdlWindow};
+use crate::Window;
+use crate::pipeline::Pipeline;
+
 pub struct Render<'r> {
     // destroy surface before instance
     surface: wgpu::Surface<'r>,
     instance: wgpu::Instance,
     device: wgpu::Device,
     queue: wgpu::Queue,
-    pipeline: wgpu::RenderPipeline,
     config: wgpu::SurfaceConfiguration,
-    bind_group: wgpu::BindGroup,
+
+    pipeline: Pipeline,
+
 }
 
 
-use sdl2::video::{Window as SdlWindow};
-
-use crate::Window;
 
 impl<'r> Render<'r> {
     pub fn new(window: &SdlWindow) -> Result<Self, String> {
@@ -59,68 +61,7 @@ impl<'r> Render<'r> {
             Err(e) => return Err(e.to_string()),
         };
 
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("shader"),
-            source: wgpu::ShaderSource::Wgsl(Cow::Borrowed(include_str!("shader.wgsl"))),
-        });
-
-        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[],
-            label: Some("bind_group_layout"),
-        });
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &bind_group_layout,
-            entries: &[],
-            label: Some("bind_group"),
-        });
-        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            bind_group_layouts: &[&bind_group_layout],
-            label: None,
-            push_constant_ranges: &[],
-        });
-
-        let compilation_options = wgpu::PipelineCompilationOptions {
-            constants: &HashMap::new(),
-            zero_initialize_workgroup_memory: true,
-        };
-
-        let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            layout: Some(&pipeline_layout),
-            vertex: wgpu::VertexState {
-                buffers: &[],
-                module: &shader,
-                entry_point: Some("vs_main"),
-                compilation_options: compilation_options.clone(),
-            },
-            fragment: Some(wgpu::FragmentState {
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                    blend: None,
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-                module: &shader,
-                entry_point: Some("fs_main"),
-                compilation_options: compilation_options.clone(),
-            }),
-            primitive: wgpu::PrimitiveState {
-                topology: wgpu::PrimitiveTopology::TriangleList,
-                strip_index_format: None,
-                front_face: wgpu::FrontFace::Ccw,
-                cull_mode: Some(wgpu::Face::Front),
-                unclipped_depth: false,
-                polygon_mode: wgpu::PolygonMode::Fill,
-                conservative: false,
-            },
-            depth_stencil: None,
-            label: None,
-            multisample: wgpu::MultisampleState {
-                count: 1,
-                mask: !0,
-                alpha_to_coverage_enabled: false,
-            },
-            multiview: None,
-            cache: None, //TODO cache pipeline
-        });
+        let pipeline = Pipeline::new(&device);
 
         let surface_caps = surface.get_capabilities(&adapter);
 
@@ -151,9 +92,9 @@ impl<'r> Render<'r> {
             instance,
             device,
             queue,
-            pipeline,
             config,
-            bind_group,
+
+            pipeline,
         })
     }
 
@@ -206,8 +147,9 @@ impl<'r> Render<'r> {
                 timestamp_writes: None,
                 occlusion_query_set: None,
             });
-            rpass.set_pipeline(&self.pipeline);
-            rpass.set_bind_group(0, &self.bind_group, &[]);
+
+            self.pipeline.set(&mut rpass);
+
             rpass.draw(0..3, 0..1);
         }
         self.queue.submit([encoder.finish()]);

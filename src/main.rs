@@ -1,10 +1,11 @@
 use sdl2::event::{Event, WindowEvent};
 use sdl2::keyboard::Keycode;
 
-mod render;
-use render::Render;
-
 mod window;
+mod render;
+mod pipeline;
+
+use render::Render;
 use window::{Window, WindowBuilder};
 
 struct App<'app> {
@@ -28,7 +29,10 @@ impl<'app> App<'app> {
             .build()
             .unwrap();
 
-        let render = Render::new(&window.sdl_window).unwrap();
+        let render = match Render::new(&window.sdl_window) {
+            Ok(r) => r,
+            Err(e) => return Err(e),
+        };
 
 
         Ok(Self {
