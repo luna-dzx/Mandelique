@@ -5,7 +5,7 @@ use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
 
 pub struct Window {
     sdl_context: Sdl,
-    sdl_window: SdlWindow,
+    pub sdl_window: SdlWindow,
     event_pump: sdl2::EventPump,
     quit_requested: bool,
     max_fps: Option<u32>,
@@ -116,14 +116,17 @@ impl WindowBuilder {
 
         let event_pump = sdl_context.event_pump()?;
 
+        println!("{}", self.width);
+        println!("{}", self.height);
+
         Ok(Window {
             sdl_context,
             sdl_window,
             event_pump,
             quit_requested: false,
             max_fps: self.max_fps,
-            self.width,
-            self.height,
+            width: self.width,
+            height: self.height,
         })
     }
 }
@@ -150,6 +153,15 @@ impl Window {
         self.sdl_window
             .vulkan_instance_extensions()
             .expect("Failed to get Vulkan instance extensions")
+    }
+
+    pub fn resize(&mut self, width: u32, height: u32) {
+        self.width = width;
+        self.height = height;
+    }
+
+    pub fn get_id(&mut self) -> u32 {
+        self.sdl_window.id()
     }
 
     //pub fn get_handle(&mut self) -> RawWindowHandle {
